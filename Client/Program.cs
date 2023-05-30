@@ -9,20 +9,18 @@ namespace Client
     //Код приложения его вызывающий
     public class Program
     {
+        static HttpClient client = new HttpClient();
         static async Task Main(string[] args)
         {
             try
             {
                 string filePath = Console.ReadLine();
                 string Url = "https://localhost:44355/sorting/post/wordcount";
-
-                using HttpClient httpClient= new HttpClient();
-                {
-                    HttpResponseMessage response = await httpClient.PostAsJsonAsync(Url, filePath);
+                using var response = await client.PostAsJsonAsync(Url, filePath);
 
                     if (response.IsSuccessStatusCode)
                     {
-                        Dictionary<string, int> wordCounts = await response.Content.ReadAsAsync<Dictionary<string, int>>();
+                        Dictionary<string, int> wordCounts = await response.Content.ReadFromJsonAsync<Dictionary<string, int>>();
 
                         string outputFilePath = Path.Combine(Path.GetDirectoryName(filePath), "Output.txt");
 
@@ -40,7 +38,6 @@ namespace Client
                         Console.WriteLine("Файл не содержит слов");
                     }
                     Console.ReadLine();
-                }
             }
             catch (Exception ex)
             {

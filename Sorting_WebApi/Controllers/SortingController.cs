@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection.PortableExecutable;
 using System.Text.RegularExpressions;
+using Sort_Library;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace Sorting_WebApi.Controllers
 {
@@ -11,39 +14,17 @@ namespace Sorting_WebApi.Controllers
     {
         //Web-Api сервис
         [HttpPost, Route("post/wordcount")]
-        public async Task<ActionResult<Dictionary<string, int>>> GetWordCountsParallel([FromBody]string filePath)
+        public ActionResult<Dictionary<string, int>> GetWordCountsParallel([FromBody]string filePath)
         {
-            try
-            {
-                Dictionary<string, int> wordCounts = new Dictionary<string, int>();
-                using (StreamReader reader = new StreamReader(filePath))
-                {
-                    string line;
+            if (!System.IO.File.Exists(filePath))
+                return BadRequest();
 
-                    while ((line = await reader.ReadLineAsync()) != null)
-                    {
-                        Parallel.ForEach(Regex.Split(line.ToLower(), @"\W+"), word =>
-                        {
-                            if (!string.IsNullOrEmpty(word))
-                            {
-                                if (wordCounts.ContainsKey(word))
-                                {
-                                    wordCounts[word]++;
-                                }
-                                else
-                                {
-                                    wordCounts.Add(word, 1);
-                                }
-                            }
-                        });
-                    }
-                }
-                return wordCounts;
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var response = Library.GetWordCountsParallel(filePath);
+
+            if (response == null)
+                return BadRequest();
+
+            return Ok(response);
         }
     }
 }
