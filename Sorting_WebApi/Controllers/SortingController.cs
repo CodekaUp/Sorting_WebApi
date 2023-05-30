@@ -14,17 +14,11 @@ namespace Sorting_WebApi.Controllers
     {
         //Web-Api сервис
         [HttpPost, Route("post/wordcount")]
-        public ActionResult<Dictionary<string, int>> GetWordCountsParallel([FromBody]string filePath)
+        public Dictionary<string, int> GetWordCounts([FromBody] string text)
         {
-            if (!System.IO.File.Exists(filePath))
-                return BadRequest();
-
-            var response = Library.GetWordCountsParallel(filePath);
-
-            if (response == null)
-                return BadRequest();
-
-            return Ok(response);
+            Dictionary<string, int> wordCounts = Library.GetWordCountsParallel(text);
+            return wordCounts;
+            
         }
     }
 }
